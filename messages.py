@@ -1,4 +1,4 @@
-def get_start_message(user):
+def get_start_message(user: str) -> str:
     start_message = \
         f'<em><b>{user}, Добро пожаловать!</b></em>\n'\
         f'<em>Я бот, который поможет тебе анализировать расходы на авто!</em>'

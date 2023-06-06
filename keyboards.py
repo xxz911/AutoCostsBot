@@ -8,8 +8,8 @@ kb = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=[
 ])
 
 kb_statistic = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=[
-    [KeyboardButton('📊 за день'), KeyboardButton('📊 за месяц')],
-    [KeyboardButton('📊 год'), KeyboardButton('📊 всего')],
+    [KeyboardButton('📊 дневная'), KeyboardButton('📊 месячная')],
+    [KeyboardButton('📊 годовая'), KeyboardButton('📊 общая')],
     [KeyboardButton('Главное меню')]
 ])
 
