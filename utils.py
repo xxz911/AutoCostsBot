@@ -4,12 +4,12 @@
 # ВСПОМОГАТЕЛЬНЫЕ ПЕРЕМЕННЫЕ
 LIMIT_TIME = ('день', 'месяц', 'год')
 CATEGORY = [
-    'бенз',
+    'бензин',
     'мойка',
     'то',
     'ремонт',
     'шины',
-    'аксессуры',
+    'аксессуары',
     'прочее'
 ]
 
@@ -17,30 +17,30 @@ CATEGORY = [
 # Класс для получения данных из сообщения для лимита
 class LimitData:
     def __init__(self, message: str):
-        self.limit, self.time = self.get_kwargs(message)
+        self.limit, self.time = self.get_limit_args(message)
 
-    def get_kwargs(self, message: str) -> tuple:
+    def get_limit_args(self, message: str) -> tuple:
         text = message.split()
-        return text[0], text[1]
+        return int(text[0]), text[1]
 
 
 # Класс для получения данных из сообщения для затрат
 class CostData:
     def __init__(self, message: str):
         if len(message.split()) == 2:
-            self.cost, self.cat = self.get_kwargs(message)
+            self.cost, self.cat = self.get_limit_args(message)
         else:
-            self.cost, self.desc, self.cat = self.get_kwargs(message)
+            self.cost, self.desc, self.cat = self.get_limit_args(message)
 
-    def get_kwargs(self, message: str) -> tuple:
+    def get_limit_args(self, message: str) -> tuple:
         text = message.split()
         if len(text) == 2:
-            return text[0], text[1]
+            return int(text[0]), text[1]
         else:
             cost = text.pop(0)
             cat = text.pop()
             desc = ' '.join(text).replace("(", "").replace(")", "").strip()
-            return cost, desc, cat
+            return int(cost), desc, cat
 
 
 # Класс фильтра хендлера
@@ -57,6 +57,6 @@ class Filter:
         text = message.split()
         if len(text) == 2 and text[1] in CATEGORY[:2] and text[0].isdecimal():
             return True
-        if len(text) > 2 and text[0].isdecimal() and text[-1] in CATEGORY[3:]:
+        if len(text) > 2 and text[0].isdecimal() and text[-1] in CATEGORY[2:]:
             return True
         return False
