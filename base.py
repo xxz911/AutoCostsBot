@@ -1,22 +1,22 @@
 """Контроллер"""
-
+import logging
 
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher.filters import Text
 from aiogram.utils.exceptions import BotBlocked
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from settings import API_TOKEN
 from messages import *
 from keyboards import *
 from utils import *
-from exceptions import *
+
 
 # Включаем логирование
-# logging.basicConfig(level=logging.DEBUG)
+file_log = logging.FileHandler("bot_log.log")
+console_out = logging.StreamHandler()
+# Добавить console_out в handlers для отображения логов в терминале
+logging.basicConfig(handlers=(file_log,), level=logging.ERROR, format="%(asctime)s %(levelname)s %(message)s")
 
-# Создаем хранилище состояний
-storage = MemoryStorage()
 
 # Инициализируем бота и dispatcher
 bot = Bot(token=API_TOKEN)
