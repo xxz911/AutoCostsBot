@@ -3,8 +3,10 @@
 
 import logging
 import sqlite3 as sq
+from datetime import datetime
+
 from exceptions import DataBaseException
-from utils import CATEGORY_DB, LimitData, LIMIT_DB
+from utils import CATEGORY_DB, LimitData, LIMIT_DB, CostData
 
 
 async def db_create() -> None:
@@ -81,3 +83,22 @@ async def set_limits_db(user_id: int, data: LimitData) -> None:
     except:
         logging.error("Неизвестная ошибка изменения лимита из БД")
         raise DataBaseException
+
+
+async def set_costs_db(user_id: int, data: CostData) -> None:
+    global values
+    try:
+        desc = '-' if not hasattr(data, 'desc') else data.desc
+        cost = data.cost
+        create_time = datetime.now().strftime("%d/%M/%y %H:%M:%S")
+        query_cat = cur.execute(f"SELECT cat_id FROM category WHERE name='{CATEGORY_DB[data.cat]}'").fetchone()
+        cat = int(query_cat[0])
+        values = (user_id, desc, cost, cat, create_time)
+    except:
+        logging.error("Неизвестная ошибка получения cat_id из category в запросе к БД")
+
+    try:
+        cur.execute("INSERT INTO costs (user_id, description, cost, cat_id, create_date) VALUES(?, ?, ?, ?, ?)", values)
+        db.commit()
+    except:
+        logging.error("Неизвестная ошибка внесения расходов в БД")

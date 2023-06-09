@@ -4,9 +4,10 @@
 from aiogram import types
 
 from keyboards import kb, kb_main
-from messages import get_start_message, PROBLEM_MESSAGE, get_limit_massage, get_done_limit_message
-from sqlite import is_user_db, get_limits_db, set_limits_db
-from utils import LimitData
+from messages import get_start_message, PROBLEM_MESSAGE, get_limit_massage, get_done_limit_message, \
+    get_done_cost_message
+from sqlite import is_user_db, get_limits_db, set_limits_db, set_costs_db
+from utils import LimitData, CostData
 
 
 async def db_is_ready(message: types.Message) -> None:
@@ -37,5 +38,16 @@ async def set_limit(message: types.Message) -> None:
         await message.reply(text=get_done_limit_message(data),
                             reply_markup=kb
                             )
+    except:
+        await message.answer(text=PROBLEM_MESSAGE, reply_markup=kb)
+
+
+async def set_cost(message: types.Message) -> None:
+    user_id = int(message.from_user.id)
+    data = CostData(message.text)
+    try:
+        await set_costs_db(user_id, data)
+        await message.reply(text=get_done_cost_message(data),
+                            reply_markup=kb)
     except:
         await message.answer(text=PROBLEM_MESSAGE, reply_markup=kb)

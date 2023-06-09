@@ -9,14 +9,17 @@ from aiogram.utils.exceptions import BotBlocked
 from settings import API_TOKEN
 from messages import *
 from keyboards import kb, kb_statistic
-from utils import Filter, CostData
+from utils import Filter
 from sqlite import db_create
-from utils_db import db_is_ready, get_limit, set_limit
+from utils_db import db_is_ready, get_limit, set_limit, set_cost
 
 # Включаем логирование
 file_log = logging.FileHandler("log.log")
 console_out = logging.StreamHandler()
-logging.basicConfig(handlers=(file_log, console_out), level=logging.ERROR, format="%(asctime)s %(levelname)s |  %(lineno)d %(funcName)s: %(message)s")
+logging.basicConfig(handlers=(file_log, console_out),
+                    level=logging.ERROR,
+                    format="%(asctime)s %(levelname)s |  %(lineno)d %(funcName)s: %(message)s"
+                    )
 
 
 # Инициализируем бота и dispatcher
@@ -83,9 +86,7 @@ async def cmd_set_limit(message: types.Message) -> None:
 # Обработка сообщений для сохранения расходов
 @dp.message_handler(lambda message: Filter.is_handler_cost(message.text))
 async def cmd_set_cost(message: types.Message) -> None:
-    data = CostData(message.text)
-    text = get_done_cost_message(data)
-    await message.reply(text=text, reply_markup=kb)
+    await set_cost(message)
 
 
 # Обработка невалидных сообщений
