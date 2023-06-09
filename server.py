@@ -1,21 +1,22 @@
 """Контроллер"""
-import logging
 
+
+import logging
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher.filters import Text
 from aiogram.utils.exceptions import BotBlocked
 
 from settings import API_TOKEN
 from messages import *
-from keyboards import *
-from utils import *
-
+from keyboards import kb, kb_statistic
+from utils import Filter, CostData
+from sqlite import db_create
+from utils_db import db_is_ready, get_limit, set_limit
 
 # Включаем логирование
-file_log = logging.FileHandler("bot_log.log")
+file_log = logging.FileHandler("log.log")
 console_out = logging.StreamHandler()
-# Добавить console_out в handlers для отображения логов в терминале
-logging.basicConfig(handlers=(file_log,), level=logging.ERROR, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(handlers=(file_log, console_out), level=logging.ERROR, format="%(asctime)s %(levelname)s |  %(lineno)d %(funcName)s: %(message)s")
 
 
 # Инициализируем бота и dispatcher
@@ -23,41 +24,42 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
 
-# Функция при запуске
+# Выполнение при старте программы
 async def on_startup(_):
+    await db_create()
     print('___Бот запустился!___')
 
 
-# Вывод приветствия
+# Обработка команды 'Старт'
 @dp.message_handler(commands=['start'])
-async def send_welcome(message: types.Message) -> None:
-    f_name = message.from_user.first_name
-    await message.answer(
-        text=get_start_message(f_name),
-        parse_mode="HTML",
-        reply_markup=kb
-    )
-    await send_help(message=message)
-    await send_main(message=message)
+async def cmd_send_welcome(message: types.Message) -> None:
+    try:
+        await db_is_ready(message)
+        await cmd_send_help(message=message)
+    except:
+        await message.answer(
+            text=PROBLEM_MESSAGE,
+            reply_markup=kb
+        )
 
 
-# Кнопка Главного меню
+# Обработка кнопки 'Главное меню'
 @dp.message_handler(Text(equals='Главное меню'))
-async def send_main(message: types.Message) -> None:
+async def cmd_send_main(message: types.Message) -> None:
     await message.answer(text="📝Напиши мне свои расходы", reply_markup=kb)
     await message.delete()
 
 
-# Кнопка Статистика
+# Обработка кнопки 'Статистика'
 @dp.message_handler(Text(equals='📊Статистика'))
-async def send_statistic(message: types.Message) -> None:
+async def cmd_send_statistic(message: types.Message) -> None:
     await message.answer(text="☑️Выбери нужную статистику", reply_markup=kb_statistic)
     await message.delete()
 
 
-# Кнопка Помощь
+# Обработка кнопки 'Помощь'
 @dp.message_handler(Text(equals='🆘Помощь'))
-async def send_help(message: types.Message) -> None:
+async def cmd_send_help(message: types.Message) -> None:
     await message.answer(
         text=HELP_MESSAGE,
         parse_mode="HTML",
@@ -65,32 +67,30 @@ async def send_help(message: types.Message) -> None:
     )
 
 
-# Кнопка Установить лимит
+# Обработка кнопки 'Установить лимит'
 @dp.message_handler(Text(equals='🌡️Установить лимит'))
-async def send_limit(message: types.Message) -> None:
-    await message.answer(text=LIMIT_MESSAGE, reply_markup=kb_main)
+async def cmd_send_limit(message: types.Message) -> None:
+    await get_limit(message)
     await message.delete()
 
 
-# Установка лимита на расходы
+# Обработка сообщений для установки лимита на расходы
 @dp.message_handler(lambda message: Filter.is_handler_limit(message.text))
-async def set_limit(message: types.Message) -> None:
-    data = LimitData(message.text)
-    await message.reply(text=f'✅Лимит установлен на {data.limit} руб. в {data.time}.',
-                        reply_markup=kb
-                        )
+async def cmd_set_limit(message: types.Message) -> None:
+    await set_limit(message)
 
 
-# Сохранение затрат
+# Обработка сообщений для сохранения расходов
 @dp.message_handler(lambda message: Filter.is_handler_cost(message.text))
-async def set_cost(message: types.Message) -> None:
+async def cmd_set_cost(message: types.Message) -> None:
     data = CostData(message.text)
-    text = get_cost_message(data)
+    text = get_done_cost_message(data)
     await message.reply(text=text, reply_markup=kb)
 
 
+# Обработка невалидных сообщений
 @dp.message_handler(content_types=types.ContentType.ANY)
-async def do_echo(message: types.Message) -> None:
+async def cmd_exceptions(message: types.Message) -> None:
     text = BAD_TEXT_MESSAGE if message.text else NOT_TEXT_MESSAGE
     await message.reply(text=text, reply_markup=kb)
 
