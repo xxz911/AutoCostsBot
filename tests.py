@@ -7,17 +7,17 @@ from utils import CostData, LimitData, Filter
 
 
 # Тест парсинга сообщения затрат
-@pytest.mark.parametrize("bot_message, expected_result", [
+@pytest.mark.parametrize("message, expected_result", [
     ('200 бенз', {'cat': 'бенз', 'cost': 200}),
     ('5000 коврики на машину то', {'cat': 'то', 'cost': 5000, 'desc': 'коврики на машину'}),
 ])
-def test_get_limit_args(message: str, expected_result: bool) -> None:
+def test_get_cost_args(message: str, expected_result: bool) -> None:
     result = CostData(message).__dict__
     assert result == expected_result
 
 
 # Тест парсинга сообщения лимита
-@pytest.mark.parametrize("bot_message, expected_result", [
+@pytest.mark.parametrize("message, expected_result", [
     ('200 день', {'limit': 200, 'time': 'день'}),
     ('20000 месяц', {'limit': 20000, 'time': 'месяц'}),
     ('20000000 год', {'limit': 20000000, 'time': 'год'}),
@@ -28,7 +28,7 @@ def test_get_limit_args(message: str, expected_result: bool) -> None:
 
 
 # Тест фильтра hendler на ввод лимита
-@pytest.mark.parametrize("bot_message, expected_result", [
+@pytest.mark.parametrize("message, expected_result", [
     ('200 день', True),
     ('20000 месяц', True),
     ('20000000 год', True),
@@ -46,7 +46,7 @@ def test_is_handler_limit(message: str, expected_result: bool) -> None:
 
 
 # Тест фильтра hendler на ввод затрат
-@pytest.mark.parametrize("bot_message, expected_result", [
+@pytest.mark.parametrize("message, expected_result", [
     ('200 бензин', True),
     ('600 мойка', True),
     ('5000 коврики на машину то', True),
