@@ -28,9 +28,9 @@
 5. Находясь в корневой директории установите все необходимые зависимости и запустите приложение локально командами: 
 
 ```bash
-  tasker $ pip install -r requirements.txt
+  $ pip install -r requirements.txt
   
-  tasker $ python server.py
+  $ python server.py
 ```
 ## Как использовать проект
 Найдите в телеграмме бота(имя указанное при получение Token)
